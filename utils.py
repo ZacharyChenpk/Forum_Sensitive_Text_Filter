@@ -9,6 +9,8 @@ import pkuseg
 
 def sen_parse(raw_sen, seg):
     text = seg.cut(raw_sen.replace("\\", "").replace("\'", "").replace('/', '').replace('"', '').replace(',', '').replace('.', '').replace('?', '').replace('(', '').replace(')', '').replace(" ", "").replace("，", "").replace("。", "").replace("…", "").replace("“", "").replace("”", "").replace("（", "").replace("）", "").replace("#MISSED","").replace("#DELETED","").replace("—","").replace("\x00",""))
+    if len(text)==0:
+        return "EMPTY"
     return text
 
 class hole_dzdataset(Dataset):
@@ -58,8 +60,9 @@ class lstm_model(nn.Module):
         longest_l = max(len_batch)
         #_, re_new_idx = torch.sort(new_length_idx) 
         #new_X = X_batch.index_select(1,new_length_idx) 
+        #print(X_batch)
         train_data = nn.utils.rnn.pad_sequence(X_batch, batch_first=True, padding_value=0)
-        pad_data = nn.utils.rnn.pack_padded_sequence(train_data, len_batch, batch_first=True, enforce_sorted=False) 
+        pad_data = nn.utils.rnn.pack_padded_sequence(train_data, len_batch, batch_first=True, enforce_sorted=False).cuda()
         output, (h_n, c_n) = self.rnn(pad_data) 
         h_n = h_n.squeeze(0)
         # h_n: bsz * emb_size
@@ -70,7 +73,7 @@ class lstm_model(nn.Module):
 def test_eval(test_dataloader, the_lstm, require_y_pre=False):
     total_cnt = 0
     correct_cnt = 0
-    for i,(x,lens,y) in enumerate(train_dataloader):
+    for i,(x,lens,y) in enumerate(test_dataloader):
         ans = y.argmax(dim=1)
         y_predict = the_lstm(x, lens)
         predict = y_predict.argmax(dim=1)
@@ -94,9 +97,10 @@ if __name__ == '__main__':
                               collate_fn=collate_fn)
     for epoch in range(200):
         for i,(x,lens,y) in enumerate(train_dataloader):
-            optimizer.zero_grad()
-            y_predict = the_lstm(x, lens)
-            loss = loss_fn(y_predict, y)
-            loss.backward()
-            optimizer.step()
+            if len(x)>0:
+                optimizer.zero_grad()
+                y_predict = the_lstm(x, lens)
+                loss = loss_fn(y_predict, y)
+                loss.backward()
+                optimizer.step()
         print(test_eval(train_dataloader, the_lstm, require_y_pre=True))

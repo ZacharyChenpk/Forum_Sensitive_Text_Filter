@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import time
-time1=time.time()
+import os
+import pickle
 
 # AC Automation
 class node(object):
@@ -70,7 +71,7 @@ class ac_automation(object):
 
     # loading the sensitive dictionary
     def parse(self, path):
-        with open(path,encoding='utf-8') as f:
+        with open(path,encoding='gbk') as f:
             for keyword in f:
                 self.addword(str(keyword).strip())
 
@@ -85,13 +86,16 @@ class ac_automation(object):
 if __name__ == '__main__':
 
     ah = ac_automation()
-    path='F:/文本反垃圾算法/sensitive_words.txt'
-    ah.parse(path)
+    #for root, dirs, files in os.walk("sensitive_words", topdown=False):
+    #    for name in files:
+    #        print(os.path.join(root, name))
+    #        ah.parse(os.path.join(root, name))
+    with open('../words.pkl', 'rb') as f:
+        wordlist = pickle.load(f)
+    for w in wordlist:
+        ah.addword(w)
     text1="新疆骚乱苹果新品发布会雞八"
     text2=ah.words_replace(text1)
 
     print(text1)
     print(text2)
-
-    time2 = time.time()
-    print('总共耗时：' + str(time2 - time1) + 's')
