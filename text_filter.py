@@ -15,7 +15,7 @@ the_lstm = torch.load('lstm_1117')
 the_lstm.batch_size = 1
 seg = pkuseg.pkuseg(model_name='web')
 the_filter = AC_automation()
-with open('../sensitive_words.pkl', 'rb') as f:
+with open('sensitive_words.pkl', 'rb') as f:
     wordlist = pickle.load(f)
 for w in wordlist:
     the_filter.addword(w)
