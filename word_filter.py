@@ -7,73 +7,81 @@ import pickle
 class node(object):
     def __init__(self):
         self.next = {}
-        self.fail = None
-        self.isWord = False
+        self.backlink = None
+        self.ending = False
         self.word = ""
 
-class ac_automation(object):
-
+class AC_automation(object):
     def __init__(self):
         self.root = node()
+        self.root.word = "THEROOT"
 
-    # add a sensitive word
+    # add a word
     def addword(self, word):
-        temp_root = self.root
+        if len(word) == 0 or len(word) > 8:
+            return
+        if len(word) == 1:
+            print(word)
+        tmp_root = self.root
         for char in word:
-            if char not in temp_root.next:
-                temp_root.next[char] = node()
-            temp_root = temp_root.next[char]
-        temp_root.isWord = True
-        temp_root.word = word
+            if char not in tmp_root.next:
+                tmp_root.next[char] = node()
+            tmp_root = tmp_root.next[char]
+        tmp_root.word = word
+        tmp_root.ending = True
 
-    # fail_pointer
-    def make_fail(self):
-        temp_que = []
-        temp_que.append(self.root)
-        while len(temp_que) != 0:
-            temp = temp_que.pop(0)
-            p = None
-            for key,value in temp.next.item():
-                if temp == self.root:
-                    temp.next[key].fail = self.root
+    # back link pointer
+    def make_backlink(self):
+        tmp_q = []
+        tmp_q.append(self.root)
+        while len(tmp_q) != 0:
+            tmp = tmp_q.pop(0)
+            p = False
+            for key,value in tmp.next.items():
+                #print(key)
+                if tmp == self.root:
+                    tmp.next[key].backlink = self.root
                 else:
-                    p = temp.fail
-                    while p is not None:
+                    p = tmp.backlink
+                    while p:
                         if key in p.next:
-                            temp.next[key].fail = p.fail
+                            #tmp.next[key].backlink = p.backlink
+                            tmp.next[key].backlink = p.next[key]
+                            if p.next[key].ending:
+                                tmp.next[key].ending = True
                             break
-                        p = p.fail
-                    if p is None:
-                        temp.next[key].fail = self.root
-                temp_que.append(temp.next[key])
+                        p = p.backlink
+                    if not p:
+                        tmp.next[key].backlink = self.root
+                tmp_q.append(tmp.next[key])
 
     # searching for the index of sensitive words
     def search(self, content):
         p = self.root
+        print(p.word, self.root.word)
         result = []
-        currentposition = 0
+        curpos = 0
 
-        while currentposition < len(content):
-            word = content[currentposition]
-            while word in p.next == False and p != self.root:
-                p = p.fail
+        while curpos < len(content):
+            word = content[curpos]
+            #print("DEBUG1", p.word)
+            while (word not in (p.next)) and (p.word != "THEROOT"):
+                #print("DEBUG2", word)
+                p = p.backlink
 
             if word in p.next:
                 p = p.next[word]
             else:
                 p = self.root
 
-            if p.isWord:
+            if p.ending:
+                while p.word == "":
+                    p = p.backlink
                 result.append(p.word)
+                print(p.word)
                 p = self.root
-            currentposition += 1
+            curpos += 1
         return result
-
-    # loading the sensitive dictionary
-    def parse(self, path):
-        with open(path,encoding='gbk') as f:
-            for keyword in f:
-                self.addword(str(keyword).strip())
 
     # replace the sensitive words, return the result
     def words_replace(self, text):
@@ -85,17 +93,14 @@ class ac_automation(object):
 
 if __name__ == '__main__':
 
-    ah = ac_automation()
-    #for root, dirs, files in os.walk("sensitive_words", topdown=False):
-    #    for name in files:
-    #        print(os.path.join(root, name))
-    #        ah.parse(os.path.join(root, name))
+    the_filter = AC_automation()
     with open('../words.pkl', 'rb') as f:
         wordlist = pickle.load(f)
     for w in wordlist:
-        ah.addword(w)
-    text1="新疆骚乱苹果新品发布会雞八"
-    text2=ah.words_replace(text1)
+        #print(w)
+        the_filter.addword(w)
+    text1="鷄和谐清华帮陈云新疆网易云音乐"
+    text2=the_filter.words_replace(text1)
 
     print(text1)
     print(text2)
