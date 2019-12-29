@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="generator" content="Jekyll v3.8.5">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      function insert(){
+        $.ajax({
+          type: "POST",
+          url: "sub.php",
+          data: $('#form1').serialize(),
+          success: function(res){
+            var result=document.getElementById("success");
+            if(res.indexOf("blocked")!=-1){
+              result.innerHTML="提交失败，包含敏感内容!";
+            }
+            else{
+              result.innerHTML="提交成功!";
+            }
+            console.log(res);
+            //window.location.reload();
+          },
+          error : function(res){
+            var result=document.getElementById("success");
+            result.innerHTML="提交失败!";
+            console.log(res);
+          }
+        });
+      }
+    </script>
+
+    <title>BBS FOR WEB</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+  <nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="index.html">BBS</a>
+  </div>
+  <div>
+    <ul class="nav navbar-nav">
+      <li class="disabled"><a href="#">New Subject</a></li>
+      <li><a href="#">link</a></li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          dropdown
+          <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="#">1</a></li>
+          <li><a href="#">2</a></li>
+          <li><a href="#">3</a></li>
+          <li class="divider"></li>
+          <li><a href="#">分离的链接</a></li>
+          <li class="divider"></li>
+          <li><a href="#">另一个分离的链接</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+    <form class="navbar-form navbar-right" role="search">
+      <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+      <button id="subbutton" class="btn btn-default" type="submit">Search</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container">
+  <form role="form" id="form1" onsubmit="return false" action="##">
+    <div class="form-group">
+      <label for="name">主题</label>
+      <input name="subject" type="text" class="form-control" id="subject" placeholder="请输入主题">
+    </div>
+    <div class="form-group">
+      <label for="name">内容</label>
+      <textarea name="content" class="form-control" id="content" placeholder="说些什么吧" rows="10"></textarea>
+    </div>
+    <p><input type="submit" value="提交" onclick="insert()"></p>
+  </form>
+  <div id="success"></div>
+</div>
+    </body>
+</html>

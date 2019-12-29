@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="generator" content="Jekyll v3.8.5">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      function insert(){
+        var thisUrl=document.URL;
+        var para =thisUrl.split('?')[1];
+        var pid =para.split('&')[1];
+        var pid=pid.split('=')[1];
+        var pinglun=document.getElementById("reply").value;
+        console.log(pinglun,pid);
+        $.ajax({
+          type: "POST",
+          url: "com.php",
+          data: {"pid":pid,"content":pinglun},
+          success: function(res){
+            var result=document.getElementById("success");
+            result.innerHTML="提交成功!";
+            console.log(res);
+            window.location.reload();
+          },
+          error : function(res){
+            var result=document.getElementById("success");
+            result.innerHTML="提交失败!";
+            console.log(res);
+          }
+        });
+      }
+    </script>
+
+    <title>BBS FOR WEB</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+  <nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="index.html">BBS</a>
+  </div>
+  <div>
+    <ul class="nav navbar-nav">
+      <li><a href="new%20subject.html">New Subject</a></li>
+      <li><a href="#">link</a></li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          dropdown
+          <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="#">1</a></li>
+          <li><a href="#">2</a></li>
+          <li><a href="#">3</a></li>
+          <li class="divider"></li>
+          <li><a href="#">分离的链接</a></li>
+          <li class="divider"></li>
+          <li><a href="#">另一个分离的链接</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+    <form class="navbar-form navbar-right" role="search">
+      <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+      <button class="btn btn-default" type="submit">Search</button>
+    </form>
+  </div>
+</nav>
+
+
+<div class="container" >
+    <div class="panel panel-success" id="post">
+      <div class="panel-heading">
+        <h2 class="panel-title">标题</h2>
+      </div>
+      <div class="panel-body">
+        内容
+      </div>
+    </div>
+
+    <div class="panel panel-success" id="comment">
+    <div class="panel-body">
+        评论
+      </div>
+    </div>
+
+    <form role="form" id = "form2">
+      <div class="form-group">
+        <label for="name">评论</label>
+        <textarea name="reply" class="form-control" id="reply" placeholder="说些什么吧" rows="5"></textarea>
+      </div>
+      <p><input type="button" value="提交" onclick="insert()"></p>
+    </form>
+    <div id="success"></div>
+</div><!-- /.container -->
+
+
+<!--页面跳转传参-->
+<script type="text/javascript">
+  var thisUrl=document.URL;
+  //console.log(thisUrl);
+  var para =thisUrl.split('?')[1];
+  var filename=para.split('&')[0];
+  var filename= filename.split('=')[1];
+  pid =para.split('&')[1];
+  pid=pid.split('=')[1];
+  $.ajax({
+    type: 'POST',
+    url: "getContent.php",
+    data: {"file":filename, "pid":pid },
+    success: function(res){
+      console.log(res);
+      var p=JSON.parse(res);
+      var Element=document.getElementById("post");
+      var html_str="<div class=\"panel-heading\"><h3 class=\"panel-title\">"
+            +p.subject+"</h3></div><div class=\"panel-body\">"+p.dz_text+"</div>";
+      Element.innerHTML=html_str;
+    },
+    error : function(res){
+            console.log("FAIL");
+          }
+    });
+  //获取评论信息
+  $.ajax({
+    type: 'POST',
+    url: "getComment.php",
+    data: {"pid":pid },
+    success: function(res){
+      var str=res.split("@,~");
+      var num=str.length-1;
+      console.log(num);
+      var ele_c=document.getElementById("comment");
+      if(num>0){
+        var c=JSON.parse(str[0]);
+        ele_c.innerHTML="<div class=\"panel-body\">"+c.content+"</div>";
+      }
+      for (var i = 1; i < num; i++) {
+          var cp=JSON.parse(str[i]);
+          var newComment = document.createElement("div");
+          newComment.class="panel panel-success";
+          newComment.innerHTML="<div class=\"panel-body\">"+cp.content+"</div>";
+          ele_c.appendChild(newComment);
+          //console.log(html_str);
+        }      
+    },
+    error : function(res){
+            console.log("FAIL");
+          }
+    });
+</script>
+
+    </body>
+</html>
