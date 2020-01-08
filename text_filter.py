@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 import pkuseg
 import word2vec
+import sys
 
 w2v = word2vec.load('corpusWord2Vec.bin')
 the_lstm = torch.load('lstm_1117')
@@ -34,3 +35,7 @@ def sen_detect(sen):
 	if y[0]>y[1]:
 		return 1
 	return 0
+
+if __name__ == "__main__":
+	res = sen_detect(sys.argv[1])
+	print(res)

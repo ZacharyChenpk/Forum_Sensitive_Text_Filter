@@ -23,13 +23,19 @@
           data: {"pid":pid,"content":pinglun},
           success: function(res){
             var result=document.getElementById("success");
-            result.innerHTML="提交成功!";
+            if(res.indexOf("blocked")!=-1){
+              result.innerHTML="提交失败，包含敏感内容!";
+            }
+            else{
+              result.innerHTML="提交成功!";
+              window.location.reload();
+            }
             console.log(res);
-            window.location.reload();
+            //setTimeout(function(){window.location.reload();},100);
           },
           error : function(res){
             var result=document.getElementById("success");
-            result.innerHTML="提交失败!";
+            result.innerHTML="提交失败";
             console.log(res);
           }
         });
@@ -65,29 +71,8 @@
   <div>
     <ul class="nav navbar-nav">
       <li><a href="new%20subject.html">New Subject</a></li>
-      <li><a href="#">link</a></li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-          dropdown
-          <b class="caret"></b>
-        </a>
-        <ul class="dropdown-menu">
-          <li><a href="#">1</a></li>
-          <li><a href="#">2</a></li>
-          <li><a href="#">3</a></li>
-          <li class="divider"></li>
-          <li><a href="#">分离的链接</a></li>
-          <li class="divider"></li>
-          <li><a href="#">另一个分离的链接</a></li>
-        </ul>
-      </li>
+      <li><a href="emerge.html">emerge</a></li>
     </ul>
-  </div>
-    <form class="navbar-form navbar-right" role="search">
-      <input class="form-control" type="text" placeholder="Search" aria-label="Search">
-      <button class="btn btn-default" type="submit">Search</button>
-    </form>
-  </div>
 </nav>
 
 
